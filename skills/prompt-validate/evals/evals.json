@@ -1,0 +1,117 @@
+{
+  "skill_name": "prompt-validate",
+  "evals": [
+    {
+      "id": 1,
+      "name": "Technical prompt with multiple rule violations",
+      "prompt": "Valida este prompt técnico:\n\n\"Me gustaría que refactorizaras el código de autenticación y lo dejes más limpio y elegante. Sería bueno también mejorar el routing y la gestión de errores siguiendo buenas prácticas. Podrías hacerlo más robusto y profesional.\"",
+      "expected_output": "Analysis detecting multiple violations: R-1/R-2 (non-imperative and conversational language 'me gustaría', 'sería bueno', 'podrías'), R-3 (vague 'mejorar' without concrete object), R-4 (subjective terms 'limpio', 'elegante', 'robusto', 'profesional'), R-5 (no scope or path defined), R-7 (implicit 'buenas prácticas'), R-8 (multiple intentions mixed). Effectiveness 25% or below. Includes a rewritten prompt using imperative verbs, concrete replacements for subjective terms, and split intentions.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "detects-conversational-language",
+          "text": "Output identifies 'me gustaría', 'sería bueno', or 'podrías' as non-imperative or conversational phrasing and suggests replacing them with direct imperative verbs",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-subjective-terms",
+          "text": "Output identifies at least two subjective terms from 'limpio', 'elegante', 'robusto', 'profesional' and proposes concrete, measurable replacements for each",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-implicit-buenas-practicas",
+          "text": "Output detects 'buenas prácticas' as an implicit instruction and suggests replacing it with an explicit enumerated list of rules",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-mixed-intentions",
+          "text": "Output detects that the prompt mixes multiple objectives (refactorizar autenticación, mejorar routing, gestión de errores) and suggests splitting or separating them",
+          "type": "boolean"
+        },
+        {
+          "id": "effectiveness-is-low",
+          "text": "Output includes an effectiveness percentage of 25% or below, reflecting the large number of rule violations",
+          "type": "boolean"
+        },
+        {
+          "id": "includes-rewritten-prompt",
+          "text": "Output includes a rewritten version of the prompt that applies the suggested improvements (imperative verbs, concrete scope, explicit rules instead of 'buenas prácticas')",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Functional prompt (user story) — R-5 and R-10 must be marked N/A",
+      "prompt": "Revisa este prompt:\n\ntype: Funcional\n\"Como administrador del sistema, quiero gestionar usuarios desde un panel de control para activar o desactivar cuentas sin intervención técnica. El sistema debe mostrar una lista paginada de usuarios con filtros por estado y rol. Preferiblemente no mostrar usuarios eliminados en la vista principal.\"",
+      "expected_output": "Type detected as Funcional (declared, no inference note). R-5 (scope) and R-10 (exact names) marked N/A and excluded from the effectiveness denominator. R-6 violation detected for 'preferiblemente no' as a weak prohibition, with a suggestion to use an explicit 'No'. Effectiveness calculated over applicable rules only. No suggestions about missing file paths, class names, or module names.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "type-detected-as-funcional",
+          "text": "Output identifies the prompt type as Funcional",
+          "type": "boolean"
+        },
+        {
+          "id": "r5-marked-na",
+          "text": "Output lists the scope-delimiting rule as N/A in the non-evaluable rules section, noting it does not apply to functional prompts",
+          "type": "boolean"
+        },
+        {
+          "id": "r10-marked-na",
+          "text": "Output lists the exact-names rule as N/A in the non-evaluable rules section, noting it does not apply to functional prompts",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-weak-prohibition",
+          "text": "Output detects 'preferiblemente no' as a soft or implicit prohibition and suggests replacing it with an explicit 'No' statement",
+          "type": "boolean"
+        },
+        {
+          "id": "no-path-or-classname-suggestions",
+          "text": "Output does not suggest adding file paths, module names, or class names as improvements to the prompt",
+          "type": "boolean"
+        },
+        {
+          "id": "effectiveness-excludes-na-rules",
+          "text": "The effectiveness percentage is computed over the evaluable rules only (excluding R-5 and R-10 from the denominator), consistent with the N/A declarations",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Technical prompt with embedded API key — credential redaction and checklist detection",
+      "prompt": "Audita este prompt:\n\n\"Crea un servicio que consuma la API externa usando API_KEY=sk-prod-9f2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c y haz el código limpio. Implementa también el manejo de errores y los tests unitarios.\"",
+      "expected_output": "The API key value 'sk-prod-9f2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c' is replaced with [REDACTED] in all output sections. Analysis detects: R-4 ('limpio' is subjective, needs a concrete replacement), R-10 ('un servicio' is a generic name), R-11 (multiple actions listed inline without checklist format). The rewritten prompt also uses [REDACTED] for the key. Effectiveness is moderate since most imperative structure is already present.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "api-key-value-not-reproduced",
+          "text": "Output does not contain the string 'sk-prod-9f2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c' anywhere, including in the transcript, 'Texto actual' fields, and the rewritten prompt",
+          "type": "boolean"
+        },
+        {
+          "id": "api-key-shown-as-redacted",
+          "text": "Output shows '[REDACTED]' in place of the API key value in at least one section (e.g., the transcribed prompt or the 'Texto actual' citation)",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-subjective-limpio",
+          "text": "Output identifies 'limpio' as a subjective term and proposes a concrete, measurable replacement (e.g., a line-length limit, a structural rule, or a separation convention)",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-generic-service-name",
+          "text": "Output identifies 'un servicio' as a generic name and suggests using a specific name (e.g., '<Nombre>Service' or a placeholder prompting the user to provide an exact name)",
+          "type": "boolean"
+        },
+        {
+          "id": "detects-inline-action-list",
+          "text": "Output detects that the prompt lists multiple actions (consumir API, manejo de errores, tests unitarios) in a single inline sentence and suggests reformatting them as a checklist",
+          "type": "boolean"
+        }
+      ]
+    }
+  ]
+}

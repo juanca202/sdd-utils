@@ -1,0 +1,20 @@
+{
+  "name": "utils",
+  "displayName": "Utils",
+  "description": "Skills de utilidad generales: instalacion de MCP ALM (Azure DevOps / Jira), creacion de proyectos desde plantilla y validacion de prompts.",
+  "version": "1.0.0",
+  "author": {
+    "name": "juanca202"
+  },
+  "homepage": "https://github.com/juanca202/ai",
+  "repository": "https://github.com/juanca202/ai",
+  "license": "MIT",
+  "keywords": [
+    "utils",
+    "alm",
+    "azure-devops",
+    "jira",
+    "project-create",
+    "prompt-validate"
+  ]
+}
