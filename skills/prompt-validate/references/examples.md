@@ -73,26 +73,25 @@ Aplicar a `Reglas no evaluables`, `Reglas cumplidas` y a la cita `Regla:` dentro
 ## Cálculo de efectividad
 
 - **Efectividad = (Reglas cumplidas / Reglas evaluables) × 100**, redondeado al entero más cercano.
-- **Si Evaluables (N) = 0** (todas las reglas resultan N/A), **no** reportar porcentaje (evita la división por cero): mostrar `Efectividad: N/A` con la nota *"Sin reglas evaluables aplicables"*.
 - **Reglas evaluables** = de las 11, las que aplican al prompt. Descontar las marcadas como **N/A**:
   - R-5 y R-10 son **N/A** si el tipo de prompt es **Funcional**.
   - R-11 es **N/A** si el prompt no enumera ≥2 acciones.
-  - Cualquier regla cuyo patrón no aplica al contenido del prompt.
+  - Las demás reglas son siempre evaluables: si el prompt no activa su patrón (no hay sugerencia), cuentan como **cumplidas**, no como N/A.
 - **R-9** (refinamiento opcional) **no entra** en el cálculo del porcentaje. Si aplica, se muestra como sugerencia separada bajo el título `Mejora opcional · refinamiento de exclusividad`, sin afectar la efectividad.
 
 ### Cómo contar "reglas evaluables"
 
-No todas las 11 reglas aplican a todos los prompts. En el bloque de efectividad:
+No todas las 11 reglas son evaluables en todos los prompts. En el bloque de efectividad:
 
-- **Evaluables (N)** = reglas que aplican al prompt (entre 1 y 10, ya que R-9 nunca cuenta).
+- **Evaluables (N)** = reglas que aplican al prompt (entre 7 y 10: R-9 nunca cuenta y solo R-5, R-10 y R-11 pueden ser N/A).
 - **Cumplidas (X)** = evaluables sin sugerencia.
 - **Efectividad** = `round((X / N) × 100)`.
 
-Reglas que pueden ser **N/A** (y se excluyen de N):
+Únicas reglas que pueden ser **N/A** (y se excluyen de N):
 
 - **R-5** y **R-10** si el tipo de prompt es **Funcional**.
 - **R-11** si el prompt no enumera ≥2 acciones.
-- Cualquier regla cuyo patrón no aparece en el contenido del prompt.
+- Las demás reglas son siempre evaluables: si el prompt no activa su patrón (no hay sugerencia), cuentan como **cumplidas**, no como N/A.
 
 **R-9** nunca cuenta en N ni en X; si aplica, se reporta como sugerencia separada bajo `Mejora opcional · refinamiento de exclusividad` sin afectar el porcentaje.
 
@@ -143,7 +142,7 @@ Si el tipo fue **inferido**, declararlo en el output y ofrecer al usuario correg
 
 ### Prompts muy cortos
 
-Para prompts ≤10 palabras (p. ej. `arregla esto`), priorizar R-3 (acción específica) y R-5 (alcance, si es Técnico) en las sugerencias; las demás reglas pueden ser N/A.
+Para prompts ≤10 palabras (p. ej. `arregla esto`), priorizar R-3 (acción específica) y R-5 (alcance, si es Técnico) en las sugerencias; las reglas que el prompt no activa cuentan como cumplidas (R-11 es N/A si no enumera ≥2 acciones).
 
 ### Cuándo pedir contexto adicional
 

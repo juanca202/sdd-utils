@@ -4,7 +4,7 @@
 
 **Utils** es un plugin de skills de utilidad general para agentes de IA. Incluye:
 
-- [alm-install](skills/alm-install/SKILL.md) — instala, configura o repara el MCP local de Azure DevOps o Jira en Claude Code / Cursor.
+- [alm-install](skills/alm-install/SKILL.md) — instala, configura o repara el MCP local de Azure DevOps o Jira en Claude Code, Cursor o Kiro.
 - [prompt-validate](skills/prompt-validate/SKILL.md) — valida prompts dirigidos a agentes de IA contra reglas de redacción efectiva.
 
 ## Instalación

@@ -32,7 +32,7 @@ Los flujos de instalación (ADO/Jira) usan el placeholder **`{TOKEN_REF}`** para
     "ado-bay-jua": {
       "command": "npx",
       "args": ["-y", "@azure-devops/mcp", "BayteqDev", "--authentication", "pat"],
-      "env": { "PERSONAL_ACCESS_TOKEN": "${env:ADO_PAT_BAYTEQDEV_JUANCA}" }
+      "env": { "PERSONAL_ACCESS_TOKEN": "${env:ADO_PAT_BAYTEQDEV_JUANCA_ALTAMIRANO}" }
     }
   }
 }
@@ -46,7 +46,7 @@ Los flujos de instalación (ADO/Jira) usan el placeholder **`{TOKEN_REF}`** para
     "ado-bay-jua": {
       "command": "npx",
       "args": ["-y", "@azure-devops/mcp", "BayteqDev", "--authentication", "pat"],
-      "env": { "PERSONAL_ACCESS_TOKEN": "${ADO_PAT_BAYTEQDEV_JUANCA}" }
+      "env": { "PERSONAL_ACCESS_TOKEN": "${ADO_PAT_BAYTEQDEV_JUANCA_ALTAMIRANO}" }
     }
   }
 }

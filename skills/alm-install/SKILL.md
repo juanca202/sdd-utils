@@ -1,6 +1,6 @@
 ---
 name: alm-install
-description: Instala, configura o repara el MCP local de una herramienta ALM (Application Lifecycle Management) en Claude Code, Cursor o Kiro, con autenticación por token. Soporta Azure DevOps (ADO, @azure-devops/mcp) y Jira (mcp-atlassian). Primero pregunta con la herramienta de preguntas estructuradas qué herramienta instalar (ADO o Jira) y en qué agente(s) (Claude Code, Cursor y/o Kiro); luego detecta, por agente, si la integración ya existe y, de existir, prueba que esté bien configurada e informa su estado; si no existe, ejecuta el flujo de instalación creando los archivos correspondientes de cada agente. Usar cuando el usuario pida instalar, configurar, reparar o verificar el MCP de Azure DevOps o de Jira, ADO MCP, Jira MCP, dev.azure.com, *.atlassian.net, PAT o API token en Cursor o Claude Code, o agregar una cuenta/organización adicional a una integración ya existente.
+description: Instala, configura o repara el MCP local de una herramienta ALM (Application Lifecycle Management) en Claude Code, Cursor o Kiro, con autenticación por token. Soporta Azure DevOps (ADO, @azure-devops/mcp) y Jira (mcp-atlassian). Primero pregunta con la herramienta de preguntas estructuradas qué herramienta instalar (ADO o Jira) y en qué agente(s) (Claude Code, Cursor y/o Kiro); luego detecta, por agente, si la integración ya existe y, de existir, prueba que esté bien configurada e informa su estado; si no existe, ejecuta el flujo de instalación creando los archivos correspondientes de cada agente. Usar cuando el usuario pida instalar, configurar, reparar o verificar el MCP de Azure DevOps o de Jira, ADO MCP, Jira MCP, dev.azure.com, *.atlassian.net, PAT o API token en Cursor, Claude Code o Kiro, o agregar una cuenta/organización adicional a una integración ya existente.
 license: MIT
 ---
 
@@ -14,8 +14,6 @@ Skill genérico para conectar una herramienta ALM al MCP **local** de un agente 
 Filosofía común: MCP **local** (no remoto/OAuth), token guardado de forma segura fuera del chat (Keychain en macOS, variable de usuario en Windows), soporte multi-cuenta y verificación antes de reiniciar el agente. La entrada del servidor es casi idéntica entre agentes; cambia **dónde** se guarda y la **sintaxis de la variable de token** (ver [agents.md](references/agents.md)).
 
 ## Flujo del agente
-
-
 
 ### Paso 1 — Preguntar qué instalar (obligatorio)
 
@@ -74,8 +72,6 @@ Cada flujo detecta el SO (macOS/Windows), calcula identificadores, guía el alma
 - **En el MCP, si encaja** — org/site ya quedan en la entrada del `mcp.json`/`.mcp.json` (ADO: `{ORG}` en `args`; Jira: `JIRA_URL` en `env`). Validar que coincida con lo configurado.
 - **En la memoria persistente del proyecto, el resto** — proyecto por defecto, URL completa, correo y nombre de la variable de token. Guardarlo en la memoria persistente del proyecto del agente y **anexar sin borrar** lo previo. **Nunca** escribir el token ni secretos ahí.
 
-
-
 ### Paso 6 — Si ya existe: probar y reportar estado
 
 **No reinstalar.** Ejecutar la verificación de la plataforma para comprobar la configuración:
@@ -88,8 +84,6 @@ Validar, por cuenta: que la variable/secreto exista y que la API responda **JSON
 - ✅ *Conectada y funcional*.
 - ⚠️ *Configurada pero con problema* — indicar la causa y ofrecer reparar.
 - ➕ Si quería **agregar otra cuenta/organización** distinta, continuar el flujo de instalación para esa cuenta nueva sin tocar las existentes.
-
-
 
 ## Reglas transversales
 

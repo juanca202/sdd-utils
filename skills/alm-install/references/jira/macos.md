@@ -1,6 +1,6 @@
 # Jira MCP — macOS + Cursor / Kiro
 
-Pasos para que Cursor (y Kiro, que funciona igual) (abierto desde Dock o Spotlight) reciba cada `JIRA_TOKEN_{ALIAS}` de forma persistente.
+Pasos para que Cursor (y Kiro, que funciona igual), abierto desde Dock o Spotlight, reciba cada `JIRA_TOKEN_{ALIAS}` de forma persistente.
 
 ## Requisitos
 
@@ -83,7 +83,7 @@ Crear `~/Library/LaunchAgents/setenv.{SERVER_KEY}.plist` (un archivo por cuenta)
 </plist>
 ```
 
-> Ejemplo: `{SERVER_KEY}` = `jira-emp-mar` → archivo `setenv.jira-emp-mar.plist`, label `setenv.jira-emp-mar`.
+> Ejemplo: `{SERVER_KEY}` = `jira-mie-mar` → archivo `setenv.jira-mie-mar.plist`, label `setenv.jira-mie-mar`.
 
 Activar sin reiniciar:
 
@@ -126,8 +126,8 @@ Si alguna comprobación falla, el agente diagnostica y corrige antes de continua
 ## Reiniciar Cursor / Kiro
 
 1. Cerrar con **Cmd+Q** (no solo la ventana).
-2. Reabrir Cursor.
-3. **Settings → MCP** → cada servidor `{SERVER_KEY}` debe aparecer **Connected**.
+2. Reabrir la app.
+3. Cursor: **Settings → MCP** (Kiro: panel **MCP Servers**) → cada servidor `{SERVER_KEY}` debe aparecer **Connected**.
 
 ---
 
