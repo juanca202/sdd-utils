@@ -1,13 +1,14 @@
 # Agentes — dónde y cómo instalar el MCP
 
-El MCP se puede instalar en dos agentes. La **entrada** del servidor (`command`, `args`, `env`) es casi idéntica; lo que cambia entre agentes es **dónde** se guarda y **la sintaxis para referenciar la variable de entorno** del token.
+El MCP se puede instalar en tres agentes (Cursor, Claude Code y Kiro). La **entrada** del servidor (`command`, `args`, `env`) es casi idéntica; lo que cambia entre agentes es **dónde** se guarda y **la sintaxis para referenciar la variable de entorno** del token.
 
 | Agente          | Archivo (proyecto)      | Archivo (usuario/global) | Ref. a variable de entorno |
 | --------------- | ----------------------- | ------------------------ | -------------------------- |
 | **Cursor**      | `.cursor/mcp.json`      | `~/.cursor/mcp.json`     | `${env:NOMBRE_VAR}`        |
 | **Claude Code** | `.mcp.json` (raíz repo) | `~/.claude.json`         | `${NOMBRE_VAR}`            |
+| **Kiro**        | `.kiro/settings/mcp.json` | `~/.kiro/settings/mcp.json` | `${NOMBRE_VAR}`         |
 
-En ambos, la clave raíz es `mcpServers` y cada servidor es una entrada `{ "command", "args", "env" }`.
+En los tres, la clave raíz es `mcpServers` y cada servidor es una entrada `{ "command", "args", "env" }`.
 
 ## `{TOKEN_REF}` — placeholder por agente
 
@@ -17,8 +18,9 @@ Los flujos de instalación (ADO/Jira) usan el placeholder **`{TOKEN_REF}`** para
 | --------------- | ------------------------------- | -------------------------------- |
 | **Cursor**      | `${env:ADO_PAT_{ALIAS}}`        | `${env:JIRA_TOKEN_{ALIAS}}`      |
 | **Claude Code** | `${ADO_PAT_{ALIAS}}`            | `${JIRA_TOKEN_{ALIAS}}`          |
+| **Kiro**        | `${ADO_PAT_{ALIAS}}`            | `${JIRA_TOKEN_{ALIAS}}`          |
 
-> Claude Code expande `${VAR}` y `$VAR` en `.mcp.json`. Cursor usa `${env:VAR}`. **No** mezclar sintaxis: cada archivo usa la de su agente.
+> Claude Code expande `${VAR}` y `$VAR` en `.mcp.json`. Kiro también usa `${VAR}` (expande variables de entorno en `env`). Cursor usa `${env:VAR}`. **No** mezclar sintaxis: cada archivo usa la de su agente.
 
 ## Ejemplo de entrada por agente (ADO)
 
@@ -50,6 +52,8 @@ Los flujos de instalación (ADO/Jira) usan el placeholder **`{TOKEN_REF}`** para
 }
 ```
 
+**Kiro** (`.kiro/settings/mcp.json`): misma entrada que Claude Code (`${VAR}`). Opcionalmente se pueden añadir `"disabled": false` y `"autoApprove": []`.
+
 Para Jira es igual, cambiando el bloque `env` por `JIRA_URL` / `JIRA_USERNAME` / `JIRA_API_TOKEN` (ver [jira/install.md](jira/install.md)).
 
 ## Detección de instalación existente (por agente y plataforma)
@@ -69,6 +73,10 @@ Estados posibles por agente:
 ## Scope y notas por agente
 
 - **Cursor:** `.cursor/mcp.json` es por proyecto; `~/.cursor/mcp.json` aplica a todos los proyectos. Elegir según lo que el usuario quiera (por defecto, proyecto). Requiere **reinicio completo** (Cmd+Q) tras cambiar variables.
+- **Kiro:**
+  - `.kiro/settings/mcp.json` es por workspace (se puede commitear; **sin** secretos inline, usar `${VAR}`); `~/.kiro/settings/mcp.json` aplica a todos los workspaces. Si existen ambos, el del workspace tiene precedencia. Por defecto, workspace.
+  - Kiro recarga los servidores al guardar el archivo, pero las **variables de entorno** nuevas exigen **cerrar por completo y reabrir Kiro** (es app gráfica: en macOS requiere el LaunchAgent, igual que Cursor).
+  - Estado del servidor: panel **MCP Servers** en la vista de Kiro.
 - **Claude Code:**
   - `.mcp.json` (proyecto) se puede commitear al repo → se comparte con el equipo. **No** poner secretos inline; usar `${VAR}`.
   - Alternativamente `claude mcp add` guarda en scope `local`/`user` (`~/.claude.json`), que **no** se sincroniza.
@@ -87,7 +95,7 @@ Validar que el `{ORG}`/`{SITE}` de la URL coincida con el que se configuró; si 
 **Dónde almacenar:**
 
 1. **En el MCP, si encaja** — lo que forma parte de la conexión ya vive en la entrada del `mcp.json`/`.mcp.json`: en ADO, `{ORG}` es un argumento (`args`); en Jira, `JIRA_URL` (el site) está en `env`. Eso queda persistido con la propia integración.
-2. **En la memoria persistente del proyecto, el resto** — el **proyecto por defecto** y la URL completa no caben limpiamente en el JSON del MCP (no admite comentarios). Guardarlos en la memoria persistente del proyecto del agente (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor, o el archivo de memoria que el agente use). **Anexar sin borrar** lo previo.
+2. **En la memoria persistente del proyecto, el resto** — el **proyecto por defecto** y la URL completa no caben limpiamente en el JSON del MCP (no admite comentarios). Guardarlos en la memoria persistente del proyecto del agente (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor, un steering file en `.kiro/steering/` en Kiro, o el archivo de memoria que el agente use). **Anexar sin borrar** lo previo.
 
 Formato sugerido de la entrada a persistir:
 
@@ -95,7 +103,7 @@ Formato sugerido de la entrada a persistir:
 ## ALM — Integraciones configuradas
 
 ### {SERVER_KEY}  (ADO | Jira)
-- Agente(s): Cursor, Claude Code
+- Agente(s): Cursor, Claude Code, Kiro
 - Organización/Site: {ORG | SITE}
 - Proyecto por defecto: {PROJECT | KEY}
 - URL: {URL_DEL_PROYECTO}
@@ -107,4 +115,4 @@ Formato sugerido de la entrada a persistir:
 
 ## Límite de nombres
 
-El límite de **60 caracteres** en `{SERVER_KEY}:{tool_name}` es de **Cursor**. Claude Code no lo impone, pero mantener claves cortas (`{SERVER_KEY}`) es buena práctica en ambos, así que se aplica el mismo algoritmo de nomenclatura para las dos.
+El límite de **60 caracteres** en `{SERVER_KEY}:{tool_name}` es de **Cursor**. Claude Code y Kiro no lo imponen, pero mantener claves cortas (`{SERVER_KEY}`) es buena práctica en todos, así que se aplica el mismo algoritmo de nomenclatura para los tres.

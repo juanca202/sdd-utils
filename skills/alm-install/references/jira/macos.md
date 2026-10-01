@@ -1,6 +1,6 @@
-# Jira MCP — macOS + Cursor
+# Jira MCP — macOS + Cursor / Kiro
 
-Pasos para que Cursor (abierto desde Dock o Spotlight) reciba cada `JIRA_TOKEN_{ALIAS}` de forma persistente.
+Pasos para que Cursor (y Kiro, que funciona igual) (abierto desde Dock o Spotlight) reciba cada `JIRA_TOKEN_{ALIAS}` de forma persistente.
 
 ## Requisitos
 
@@ -123,7 +123,7 @@ Si alguna comprobación falla, el agente diagnostica y corrige antes de continua
 
 ---
 
-## Reiniciar Cursor
+## Reiniciar Cursor / Kiro
 
 1. Cerrar con **Cmd+Q** (no solo la ventana).
 2. Reabrir Cursor.

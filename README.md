@@ -1,6 +1,6 @@
 # Utils
 
-![version](https://img.shields.io/badge/version-1.0.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+![version](https://img.shields.io/badge/version-1.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
 
 **Utils** es un plugin de skills de utilidad general para agentes de IA. Incluye:
 

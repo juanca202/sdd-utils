@@ -1,15 +1,15 @@
 ---
 name: alm-install
-description: Instala, configura o repara el MCP local de una herramienta ALM (Application Lifecycle Management) en Claude Code o Cursor, con autenticación por token. Soporta Azure DevOps (ADO, @azure-devops/mcp) y Jira (mcp-atlassian). Primero pregunta con la herramienta de preguntas estructuradas qué herramienta instalar (ADO o Jira) y en qué agente(s) (Claude Code y/o Cursor); luego detecta, por agente, si la integración ya existe y, de existir, prueba que esté bien configurada e informa su estado; si no existe, ejecuta el flujo de instalación creando los archivos correspondientes de cada agente. Usar cuando el usuario pida instalar, configurar, reparar o verificar el MCP de Azure DevOps o de Jira, ADO MCP, Jira MCP, dev.azure.com, *.atlassian.net, PAT o API token en Cursor o Claude Code, o agregar una cuenta/organización adicional a una integración ya existente.
+description: Instala, configura o repara el MCP local de una herramienta ALM (Application Lifecycle Management) en Claude Code, Cursor o Kiro, con autenticación por token. Soporta Azure DevOps (ADO, @azure-devops/mcp) y Jira (mcp-atlassian). Primero pregunta con la herramienta de preguntas estructuradas qué herramienta instalar (ADO o Jira) y en qué agente(s) (Claude Code, Cursor y/o Kiro); luego detecta, por agente, si la integración ya existe y, de existir, prueba que esté bien configurada e informa su estado; si no existe, ejecuta el flujo de instalación creando los archivos correspondientes de cada agente. Usar cuando el usuario pida instalar, configurar, reparar o verificar el MCP de Azure DevOps o de Jira, ADO MCP, Jira MCP, dev.azure.com, *.atlassian.net, PAT o API token en Cursor o Claude Code, o agregar una cuenta/organización adicional a una integración ya existente.
 license: MIT
 ---
 
-# ALM Install — MCP de Azure DevOps o Jira en Claude Code / Cursor
+# ALM Install — MCP de Azure DevOps o Jira en Claude Code / Cursor / Kiro
 
 Skill genérico para conectar una herramienta ALM al MCP **local** de un agente con autenticación por token. Dos dimensiones:
 
 - **Plataforma** (qué instalar): **ADO** → [references/ado/install.md](references/ado/install.md) · **Jira** → [references/jira/install.md](references/jira/install.md)
-- **Agente** (dónde instalar): **Cursor** y/o **Claude Code** → [references/agents.md](references/agents.md)
+- **Agente** (dónde instalar): **Cursor**, **Claude Code** y/o **Kiro** → [references/agents.md](references/agents.md)
 
 Filosofía común: MCP **local** (no remoto/OAuth), token guardado de forma segura fuera del chat (Keychain en macOS, variable de usuario en Windows), soporte multi-cuenta y verificación antes de reiniciar el agente. La entrada del servidor es casi idéntica entre agentes; cambia **dónde** se guarda y la **sintaxis de la variable de token** (ver [agents.md](references/agents.md)).
 
@@ -32,8 +32,9 @@ Con la misma herramienta de preguntas estructuradas (permitir **selección múlt
 
 - **Cursor**
 - **Claude Code**
+- **Kiro**
 
-Se puede elegir uno o ambos. Las rutas de archivo y la sintaxis de variables de cada agente están en [references/agents.md](references/agents.md).
+Se puede elegir uno o varios. Las rutas de archivo y la sintaxis de variables de cada agente están en [references/agents.md](references/agents.md).
 
 ### Paso 3 — Detectar si ya existe (por agente y plataforma)
 
@@ -41,6 +42,7 @@ Para **cada agente seleccionado**, revisar sus archivos de config y buscar una e
 
 - **Cursor:** `.cursor/mcp.json` (proyecto) y `~/.cursor/mcp.json` (global).
 - **Claude Code:** `.mcp.json` (proyecto) y `~/.claude.json` (usuario).
+- **Kiro:** `.kiro/settings/mcp.json` (workspace) y `~/.kiro/settings/mcp.json` (usuario).
 
 Identificación de la entrada: **ADO** → `args` contiene `@azure-devops/mcp`; **Jira** → `args` contiene `mcp-atlassian` o `env` incluye `JIRA_URL`/`JIRA_API_TOKEN`. Si un archivo existe pero **no es JSON válido**, respaldar y avisar; no sobrescribir a ciegas.
 
@@ -49,10 +51,10 @@ Identificación de la entrada: **ADO** → `args` contiene `@azure-devops/mcp`; 
 Combinar el estado de cada agente y actuar así:
 
 - **No instalado en el agente pedido** → instalar ahí (Paso 5).
-- **Ya instalado en un agente, y el usuario pide instalar otra vez:**
+- **Ya instalado en algún agente, y el usuario pide instalar otra vez:**
   - Si lo pidió para **ese mismo** agente → **no reinstalar**; probar y reportar estado (Paso 6). Informar: *«Ya está instalado en {agente}»*.
-  - Si además **no** está en el otro agente → **sugerirlo**: p. ej. *«Ya está instalado en Cursor. ¿Quieres instalarlo también en Claude Code?»* y, si acepta, instalar solo en el que falta.
-- **Ya instalado en AMBOS agentes** → **no instalar nada**; solo **informar** al usuario que ya está en Cursor y Claude Code (y ofrecer verificar/reparar si lo desea).
+  - Si además **no** está en otro de los agentes soportados → **sugerirlo**: p. ej. *«Ya está instalado en Cursor. ¿Quieres instalarlo también en Claude Code o Kiro?»* y, si acepta, instalar solo en los que faltan.
+- **Ya instalado en TODOS los agentes pedidos** → **no instalar nada**; solo **informar** al usuario que ya está en todos los agentes pedidos (y ofrecer verificar/reparar si lo desea).
 
 En resumen: instalar únicamente en los agentes donde falte; para los que ya lo tienen, informar y ofrecer prueba/reparación.
 
@@ -63,7 +65,7 @@ Para cada agente a instalar, seguir el flujo de la plataforma elegida de princip
 - **ADO** → [references/ado/install.md](references/ado/install.md)
 - **Jira** → [references/jira/install.md](references/jira/install.md)
 
-Cada flujo detecta el SO (macOS/Windows), calcula identificadores, guía el almacenamiento seguro del token (solo ese paso se muestra al usuario), y **escribe la entrada en el archivo del agente correspondiente** usando su ruta y su sintaxis de `{TOKEN_REF}` (ver [agents.md](references/agents.md)). El **secreto del token se guarda una sola vez** por cuenta (Keychain/variable de usuario) y **se reutiliza** en ambos agentes; solo se duplica la entrada del `mcp.json`/`.mcp.json`. Verificar internamente y pedir reiniciar el agente.
+Cada flujo detecta el SO (macOS/Windows), calcula identificadores, guía el almacenamiento seguro del token (solo ese paso se muestra al usuario), y **escribe la entrada en el archivo del agente correspondiente** usando su ruta y su sintaxis de `{TOKEN_REF}` (ver [agents.md](references/agents.md)). El **secreto del token se guarda una sola vez** por cuenta (Keychain/variable de usuario) y **se reutiliza** en todos los agentes; solo se duplica la entrada del `mcp.json`/`.mcp.json`. Verificar internamente y pedir reiniciar el agente.
 
 ### Paso 5-bis — URL del proyecto y persistencia del contexto (antes de finalizar)
 
@@ -93,7 +95,7 @@ Validar, por cuenta: que la variable/secreto exista y que la API responda **JSON
 
 - **Nunca** pedir ni almacenar el token en el chat. El token se guarda solo en Keychain (macOS) o variable de usuario (Windows), **una vez** y reutilizado por todos los agentes.
 - **Fusionar, no reemplazar:** al escribir cualquier archivo de config, conservar todas las entradas previas (de ADO, Jira u otros MCP).
-- **Sintaxis por agente:** Cursor usa `${env:VAR}`; Claude Code usa `${VAR}`. No mezclar (ver [agents.md](references/agents.md)).
+- **Sintaxis por agente:** Cursor usa `${env:VAR}`; Claude Code y Kiro usan `${VAR}`. No mezclar (ver [agents.md](references/agents.md)).
 - **MCP local únicamente:** no configurar servidores remotos/OAuth.
 - **HTTP 200 no basta:** validar que la respuesta sea JSON real, no una página de login.
 - Multi-cuenta: cada par (organización/site + correo) es una entrada independiente con su propia clave de servidor y variable de token.

@@ -1,6 +1,6 @@
-# Azure DevOps MCP — Windows + Cursor
+# Azure DevOps MCP — Windows + Cursor / Kiro
 
-Pasos para que Cursor reciba cada `ADO_PAT_{ALIAS}` de forma persistente tras reiniciar el equipo.
+Pasos para que Cursor (y Kiro, que funciona igual) reciba cada `ADO_PAT_{ALIAS}` de forma persistente tras reiniciar el equipo.
 
 ## Requisitos
 
@@ -72,7 +72,7 @@ Si alguna comprobación falla, el agente diagnostica y corrige antes de continua
 
 ---
 
-## Reiniciar Cursor
+## Reiniciar Cursor / Kiro
 
 1. Cerrar Cursor por completo (Archivo → Salir o desde bandeja).
 2. Cerrar sesión de Windows y volver a entrar (o reiniciar el equipo) para que Cursor herede las variables de usuario actualizadas.

@@ -1,10 +1,10 @@
-# Jira Install — MCP de Jira (Claude Code / Cursor)
+# Jira Install — MCP de Jira (Claude Code / Cursor / Kiro)
 
 Configura el **servidor MCP local** `mcp-atlassian` (ejecutado con `uvx mcp-atlassian`). Autenticación por **API token** de Atlassian (Basic auth `email:token`). **No** uses el servidor remoto de Atlassian con OAuth: se mantiene la misma filosofía local que el flujo de ADO.
 
 Cada entrada en el archivo de config está ligada a un par **site (dominio Atlassian) + correo de usuario**. Esto permite tener varias cuentas activas al mismo tiempo, cada una con su propio API token.
 
-> **Dónde se escribe la entrada** (`.cursor/mcp.json` en Cursor, `.mcp.json`/`~/.claude.json` en Claude Code) y **la sintaxis de la variable de token** (`{TOKEN_REF}`) dependen del agente: ver [../agents.md](../agents.md).
+> **Dónde se escribe la entrada** (`.cursor/mcp.json` en Cursor, `.mcp.json`/`~/.claude.json` en Claude Code, `.kiro/settings/mcp.json` en Kiro) y **la sintaxis de la variable de token** (`{TOKEN_REF}`) dependen del agente: ver [../agents.md](../agents.md).
 
 ## Flujo del agente
 
@@ -24,8 +24,8 @@ Cada entrada en el archivo de config está ligada a un par **site (dominio Atlas
    - **Windows:** línea en `$PROFILE` de PowerShell.
    No mostrar estos pasos al usuario salvo que falle algo y haga falta intervención manual.
 10. **Verificar internamente** con los comandos de «Verificación del agente» en la guía del SO. El agente ejecuta las comprobaciones; **no** mostrarlas al usuario. Solo informar el resultado (éxito o error con diagnóstico).
-11. **Pedir la URL del proyecto** (ej. `https://{SITE}.atlassian.net/jira/software/projects/{KEY}/...`). Extraer `{SITE}` (validar que coincida con el configurado) y la `{KEY}` del proyecto. Persistir el contexto: `{SITE}` ya está en `JIRA_URL` del `env`; el **proyecto por defecto** (`{KEY}`), la URL, el correo y el nombre de la variable van a la **memoria persistente del proyecto** (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor; anexar sin borrar, **sin** secretos). Ver [../agents.md](../agents.md) → «Contexto del proyecto (URL)».
-12. Pedir **reinicio del agente** tras configurar variables: Cursor → cierre completo (Cmd+Q); Claude Code → reiniciar la sesión. (En Claude Code, la primera vez con un `.mcp.json` de proyecto se debe **aprobar** el servidor.)
+11. **Pedir la URL del proyecto** (ej. `https://{SITE}.atlassian.net/jira/software/projects/{KEY}/...`). Extraer `{SITE}` (validar que coincida con el configurado) y la `{KEY}` del proyecto. Persistir el contexto: `{SITE}` ya está en `JIRA_URL` del `env`; el **proyecto por defecto** (`{KEY}`), la URL, el correo y el nombre de la variable van a la **memoria persistente del proyecto** (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor, steering file en `.kiro/steering/` en Kiro; anexar sin borrar, **sin** secretos). Ver [../agents.md](../agents.md) → «Contexto del proyecto (URL)».
+12. Pedir **reinicio del agente** tras configurar variables: Cursor → cierre completo (Cmd+Q); Claude Code → reiniciar la sesión; Kiro → cerrar y reabrir la app. (En Claude Code, la primera vez con un `.mcp.json` de proyecto se debe **aprobar** el servidor.)
 
 ## Crear API token (usuario)
 
@@ -76,7 +76,7 @@ Algoritmo para calcular `{SERVER_KEY}`:
 
 ## Plantilla de entrada MCP (multi-cuenta)
 
-Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, **conservar** las entradas previas. `{TOKEN_REF}` se resuelve según el agente (`${env:JIRA_TOKEN_{ALIAS}}` en Cursor, `${JIRA_TOKEN_{ALIAS}}` en Claude Code — ver [../agents.md](../agents.md)):
+Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, **conservar** las entradas previas. `{TOKEN_REF}` se resuelve según el agente (`${env:JIRA_TOKEN_{ALIAS}}` en Cursor, `${JIRA_TOKEN_{ALIAS}}` en Claude Code y Kiro — ver [../agents.md](../agents.md)):
 
 ```json
 {
@@ -123,8 +123,8 @@ Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, *
 
 - `{SERVER_KEY}` ≤ 20 caracteres; `{ALIAS}` puede ser largo (solo env/Keychain).
 - No commitear secretos inline; usar siempre la referencia a variable (`{TOKEN_REF}`).
-- En **Claude Code** la misma entrada va en `.mcp.json` con `"JIRA_API_TOKEN": "${JIRA_TOKEN_MIEMPRESA_MARIA}"` (sin `env:`).
-- Cada servidor MCP aparecerá por separado (Cursor: **Settings → MCP**; Claude Code: `/mcp`).
+- En **Claude Code** y **Kiro** (`.kiro/settings/mcp.json`) la misma entrada va en `.mcp.json` con `"JIRA_API_TOKEN": "${JIRA_TOKEN_MIEMPRESA_MARIA}"` (sin `env:`).
+- Cada servidor MCP aparecerá por separado (Cursor: **Settings → MCP**; Claude Code: `/mcp`; Kiro: panel **MCP Servers**).
 
 ### Variante Docker
 
@@ -150,7 +150,7 @@ Precondición: Docker instalado y corriendo.
 
 La verificación previa al reinicio la ejecuta el agente (ver «Verificación del agente» en [macos.md](macos.md) o [windows.md](windows.md)). **No** mostrar esos comandos al usuario.
 
-Tras reiniciar el agente, comprobar que el servidor `{SERVER_KEY}` aparece conectado: Cursor → **Settings → MCP** en verde; Claude Code → `/mcp` (o `claude mcp list`).
+Tras reiniciar el agente, comprobar que el servidor `{SERVER_KEY}` aparece conectado: Cursor → **Settings → MCP** en verde; Claude Code → `/mcp` (o `claude mcp list`); Kiro → panel **MCP Servers**.
 
 **Prueba funcional en chat:** listar proyectos o buscar issues del site usando el servidor `{SERVER_KEY}` (ej. una JQL simple).
 
