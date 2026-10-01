@@ -95,11 +95,10 @@ Las 11 reglas de auditoría (nombre corto + qué detectan). El **detalle íntegr
 ## Cálculo de efectividad y reglas N/A
 
 - **Efectividad = (Reglas cumplidas / Reglas evaluables) × 100**, redondeado al entero más cercano.
-- **Si Evaluables (N) = 0** (todas N/A), mostrar `Efectividad: N/A` con la nota *"Sin reglas evaluables aplicables"* (evita división por cero).
 - **Reglas evaluables (N)** = de las 11, las que aplican al prompt. Descontar las **N/A**:
   - **R-5** y **R-10** son N/A si el tipo es **Funcional**.
   - **R-11** es N/A si el prompt no enumera ≥2 acciones.
-  - Cualquier regla cuyo patrón no aparece en el contenido del prompt.
+  - Las demás reglas son siempre evaluables: si el prompt no activa su patrón (no hay sugerencia), cuentan como **cumplidas**, no como N/A.
 - **R-9** (refinamiento opcional) **nunca** entra en N ni en X; si aplica, se reporta como sugerencia separada bajo `Mejora opcional · refinamiento de exclusividad`, sin afectar el porcentaje.
 
 Detalle de conteo (`Evaluables N` / `Cumplidas X`) y casos límite en `references/examples.md`.

@@ -1,20 +1,20 @@
-# ADO Install — MCP de Azure DevOps (Claude Code / Cursor)
+# ADO Install — MCP de Azure DevOps (Claude Code / Cursor / Kiro)
 
 Configura el **servidor MCP local** (`npx @azure-devops/mcp`). **No** uses el servidor remoto (`mcp.dev.azure.com`): Cursor no soporta su OAuth con Entra ID.
 
 Cada entrada en el archivo de config está ligada a un par **organización + correo de usuario**. Esto permite tener varias cuentas activas al mismo tiempo, cada una con su propio PAT.
 
-> **Dónde se escribe la entrada** (`.cursor/mcp.json` en Cursor, `.mcp.json`/`~/.claude.json` en Claude Code) y **la sintaxis de la variable de token** (`{TOKEN_REF}`) dependen del agente: ver [../agents.md](../agents.md). Este flujo describe la lógica de ADO; el agente concreto define la ruta y la sintaxis.
+> **Dónde se escribe la entrada** (`.cursor/mcp.json` en Cursor, `.mcp.json`/`~/.claude.json` en Claude Code, `.kiro/settings/mcp.json` en Kiro) y **la sintaxis de la variable de token** (`{TOKEN_REF}`) dependen del agente: ver [../agents.md](../agents.md). Este flujo describe la lógica de ADO; el agente concreto define la ruta y la sintaxis.
 
 ## Flujo del agente
 
 1. **Preguntar la organización** de Azure DevOps (ej. `Fabrikam`). Solo el nombre, sin URL completa.
 2. **Preguntar el correo** del usuario ADO asociado a esa organización (ej. `juan@empresa.com`). Se usa para nombrar la variable de entorno y la entrada del servidor de forma única.
 3. **Detectar SO**: macOS → [macos.md](macos.md); Windows → [windows.md](windows.md).
-   - **Precondición Node/npx:** como `mcp.json` usa `command: "npx"`, verificar que `node` y `npx` estén disponibles (`node -v`, `npx -v`; idealmente Node **20+**). Si faltan, avisar al usuario que debe instalarlos antes de continuar, ya que el servidor MCP fallaría al reiniciar Cursor.
+   - **Precondición Node/npx:** como `mcp.json` usa `command: "npx"`, verificar que `node` y `npx` estén disponibles (`node -v`, `npx -v`; idealmente Node **20+**). Si faltan, avisar al usuario que debe instalarlos antes de continuar, ya que el servidor MCP fallaría al reiniciar el agente.
 4. **Calcular identificadores** de la cuenta:
-   - **Alias env** `{ALIAS}`: `{ORG}_{PARTE_CORREO}` en mayúsculas (ej. `BAYTEQDEV_JUANCA`). Se usa en `ADO_PAT_{ALIAS}` y Keychain.
-   - **Clave servidor MCP** `{SERVER_KEY}`: nombre **corto** para `mcp.json` (ver sección «Límite de 60 caracteres en Cursor»). **No** usar el alias completo como clave del servidor.
+   - **Alias env** `{ALIAS}`: `{ORG}_{PARTE_CORREO}` en mayúsculas (ej. `FABRIKAM_JUAN`). Se usa en `ADO_PAT_{ALIAS}` y Keychain.
+   - **Clave servidor MCP** `{SERVER_KEY}`: nombre **corto** para `mcp.json` (ver sección «Nomenclatura»). **No** usar el alias completo como clave del servidor.
 5. **Indicar al usuario** que cree el PAT en Azure DevOps (con ese usuario) antes de continuar.
 6. **Leer el archivo de config del agente** (ver rutas en [../agents.md](../agents.md)) si ya existe, para agregar la nueva entrada sin borrar las configuraciones previas. **Si el archivo existe pero NO es JSON válido** (corrupto o editado a mano), **no sobrescribir a ciegas**: informar al usuario, respaldarlo (ej. `mcp.json.bak`) y pedir confirmación antes de regenerarlo.
 7. **Escribir o actualizar** el archivo de config del agente con la nueva entrada (plantilla abajo), usando su `{TOKEN_REF}` según [../agents.md](../agents.md). En Cursor, validar que `{SERVER_KEY}` tenga ≤ 17 caracteres antes de guardar (límite de 60 caracteres de Cursor).
@@ -24,8 +24,8 @@ Cada entrada en el archivo de config está ligada a un par **organización + cor
    - **Windows:** línea en `$PROFILE` de PowerShell.
    No mostrar estos pasos al usuario salvo que falle algo y haga falta intervención manual.
 10. **Verificar internamente** con los comandos de «Verificación del agente» en la guía del SO. El agente ejecuta las comprobaciones; **no** mostrarlas al usuario. Solo informar el resultado (éxito o error con diagnóstico).
-11. **Pedir la URL del proyecto** (ej. `https://dev.azure.com/{ORG}/{PROJECT}`). Extraer `{ORG}` (validar que coincida con el configurado) y `{PROJECT}`. Persistir el contexto: `{ORG}` ya está en `args` del `mcp.json`; el **proyecto por defecto**, la URL, el correo y el nombre de la variable van a la **memoria persistente del proyecto** (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor; anexar sin borrar, **sin** secretos). Ver [../agents.md](../agents.md) → «Contexto del proyecto (URL)».
-12. Pedir **reinicio del agente** tras configurar variables: Cursor → cierre completo (Cmd+Q); Claude Code → reiniciar la sesión. (En Claude Code, la primera vez con un `.mcp.json` de proyecto se debe **aprobar** el servidor.)
+11. **Pedir la URL del proyecto** (ej. `https://dev.azure.com/{ORG}/{PROJECT}`). Extraer `{ORG}` (validar que coincida con el configurado) y `{PROJECT}`. Persistir el contexto: `{ORG}` ya está en `args` del `mcp.json`; el **proyecto por defecto**, la URL, el correo y el nombre de la variable van a la **memoria persistente del proyecto** (p. ej. `CLAUDE.md` en Claude Code, reglas de proyecto en Cursor, steering file en `.kiro/steering/` en Kiro; anexar sin borrar, **sin** secretos). Ver [../agents.md](../agents.md) → «Contexto del proyecto (URL)».
+12. Pedir **reinicio del agente** tras configurar variables: Cursor → cierre completo (Cmd+Q); Claude Code → reiniciar la sesión; Kiro → cerrar y reabrir la app. (En Claude Code, la primera vez con un `.mcp.json` de proyecto se debe **aprobar** el servidor.)
 
 ## Crear PAT (usuario)
 
@@ -97,7 +97,7 @@ Algoritmo para calcular `{SERVER_KEY}`:
 
 ## Plantilla de entrada MCP (multi-cuenta)
 
-Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, **conservar** las entradas previas. `{TOKEN_REF}` se resuelve según el agente (`${env:ADO_PAT_{ALIAS}}` en Cursor, `${ADO_PAT_{ALIAS}}` en Claude Code — ver [../agents.md](../agents.md)):
+Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, **conservar** las entradas previas. `{TOKEN_REF}` se resuelve según el agente (`${env:ADO_PAT_{ALIAS}}` en Cursor, `${ADO_PAT_{ALIAS}}` en Claude Code y Kiro — ver [../agents.md](../agents.md)):
 
 ```json
 {
@@ -136,19 +136,18 @@ Cada cuenta es una entrada independiente. Cuando se agrega una segunda cuenta, *
 }
 ```
 
-> En **Claude Code** la misma entrada va en `.mcp.json` con `"PERSONAL_ACCESS_TOKEN": "${ADO_PAT_FABRIKAM_MARIA}"` (sin `env:`).
+> En **Claude Code** (`.mcp.json`) y **Kiro** (`.kiro/settings/mcp.json`) la entrada es la misma, pero en el archivo de cada agente y con `"PERSONAL_ACCESS_TOKEN": "${ADO_PAT_FABRIKAM_MARIA}"` (sin `env:`).
 
 - `{SERVER_KEY}` ≤ 17 caracteres en Cursor; `{ALIAS}` puede ser largo (solo env/Keychain).
-
-- No commitear secretos inline; usar siempre `${env:ADO_PAT_{ALIAS}}`.
+- No commitear secretos inline; usar siempre la referencia a variable (`{TOKEN_REF}`).
 - No ejecutar remoto y local a la vez.
-- Cada servidor MCP aparecerá por separado en **Settings → MCP** de Cursor.
+- Cada servidor MCP aparecerá por separado (Cursor: **Settings → MCP**; Claude Code: `/mcp`; Kiro: panel **MCP Servers**).
 
 ## Verificación
 
 La verificación previa al reinicio la ejecuta el agente (ver «Verificación del agente» en [macos.md](macos.md) o [windows.md](windows.md)). **No** mostrar esos comandos al usuario.
 
-Tras reiniciar el agente, comprobar que el servidor `{SERVER_KEY}` aparece conectado: Cursor → **Settings → MCP** en verde y **sin** aviso de *naming issues*; Claude Code → `/mcp` (o `claude mcp list`) muestra el servidor conectado.
+Tras reiniciar el agente, comprobar que el servidor `{SERVER_KEY}` aparece conectado: Cursor → **Settings → MCP** en verde y **sin** aviso de *naming issues*; Claude Code → `/mcp` (o `claude mcp list`); Kiro → panel **MCP Servers** muestra el servidor conectado.
 
 **Prueba funcional en chat:** listar proyectos o work items de `{ORG}` usando el servidor `{SERVER_KEY}`.
 
@@ -156,7 +155,7 @@ Tras reiniciar el agente, comprobar que el servidor `{SERVER_KEY}` aparece conec
 
 | Síntoma                                     | Causa                                     | Acción                                          |
 | ------------------------------------------- | ----------------------------------------- | ----------------------------------------------- |
-| *Some tools have naming issues…*            | `{SERVER_KEY}` demasiado largo (> 19)     | Renombrar clave en `mcp.json` según algoritmo   |
+| *Some tools have naming issues…*            | `{SERVER_KEY}` demasiado largo (> 17)     | Renombrar clave en `mcp.json` según algoritmo   |
 | `PERSONAL_ACCESS_TOKEN is not set or empty` | Variable `ADO_PAT_{ALIAS}` no visible     | Verificar nombre exacto del alias y reiniciar   |
 | HTTP 302 / sign-in                          | PAT crudo en lugar de base64              | Recodificar y volver a guardar                  |
 | MCP remoto falla                            | Cursor + OAuth remoto                     | Usar solo MCP local                             |

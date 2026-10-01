@@ -1,6 +1,6 @@
-# Azure DevOps MCP — Windows + Cursor
+# Azure DevOps MCP — Windows + Cursor / Kiro
 
-Pasos para que Cursor reciba cada `ADO_PAT_{ALIAS}` de forma persistente tras reiniciar el equipo.
+Pasos para que Cursor (y Kiro, que funciona igual) reciba cada `ADO_PAT_{ALIAS}` de forma persistente tras reiniciar el equipo.
 
 ## Requisitos
 
@@ -72,12 +72,12 @@ Si alguna comprobación falla, el agente diagnostica y corrige antes de continua
 
 ---
 
-## Reiniciar Cursor
+## Reiniciar Cursor / Kiro
 
-1. Cerrar Cursor por completo (Archivo → Salir o desde bandeja).
-2. Cerrar sesión de Windows y volver a entrar (o reiniciar el equipo) para que Cursor herede las variables de usuario actualizadas.
-3. Reabrir Cursor.
-4. **Settings → MCP** → cada servidor `{SERVER_KEY}` debe aparecer **Connected** y sin aviso de *naming issues*.
+1. Cerrar la app por completo (Archivo → Salir o desde bandeja).
+2. Cerrar sesión de Windows y volver a entrar (o reiniciar el equipo) para que la app herede las variables de usuario actualizadas.
+3. Reabrir la app.
+4. Cursor: **Settings → MCP** (Kiro: panel **MCP Servers**) → cada servidor `{SERVER_KEY}` debe aparecer **Connected** y sin aviso de *naming issues*.
 
 > Si no se quiere cerrar sesión, lanzar Cursor desde una ventana de PowerShell donde se haya seteado `$env:ADO_PAT_{ALIAS}` manualmente (solo válido para esa sesión).
 
